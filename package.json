@@ -1,0 +1,27 @@
+{
+  "name": "@edu-tosel/type-checker",
+  "version": "1.0.0",
+  "description": "Simple typechecker for custom type guards",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edu-tosel/type-checker.git"
+  },
+  "keywords": [
+    "type-check",
+    "typescript",
+    "type-guard"
+  ],
+  "author": "International TOSEL Committee",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/edu-tosel/type-checker/issues"
+  },
+  "homepage": "https://github.com/edu-tosel/type-checker#readme",
+  "devDependencies": {
+    "@types/node": "^20.11.5"
+  }
+}
