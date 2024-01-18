@@ -1,10 +1,11 @@
 {
   "name": "@edu-tosel/type-checker",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Simple typechecker for custom type guards",
   "main": "src/index.ts",
   "scripts": {
-    "test": "npm run test"
+    "build": "tsc -p tsconfig.build.json --noEmit false",
+    "publish": "npm run build && node setupPackage.js && cd dist && npm publish"
   },
   "repository": {
     "type": "git",
