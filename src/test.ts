@@ -10,6 +10,7 @@ const obj = {
     state: "NY",
     zip: 12345,
   },
+  // nationality: "American",
   hobbies: ["asdf"],
 };
 const startTime = process.hrtime();
@@ -19,6 +20,8 @@ const result = objChecker
   .as("string")
   .is("age")
   .as("number")
+  .is(["nationality", "hobbies"])
+  .as(["array", "undefined"])
   .is("hobbies")
   .as("array")
   .end();

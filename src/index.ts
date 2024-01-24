@@ -72,6 +72,7 @@ export class TypeChecker implements TypeChecker {
           if (!result) {
             this.failedAll(key, typeof this.obj[key], type);
           }
+          return result;
         });
       }
     }
