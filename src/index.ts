@@ -33,16 +33,16 @@ export class TypeChecker implements TypeChecker {
   message: string[] = [];
   key: string | string[] = "";
   isChecking: boolean = false;
-  strict: boolean = false;
+  strict: boolean = true;
   constructor(
     obj: Record<string, any | undefined>,
-    options?: { strict?: boolean }
+    options?: { noStrict?: boolean }
   ) {
     if (typeof obj !== "object")
       throw new TypeCheckerError("You must pass an object");
     this.obj = obj;
-    if (options?.strict !== undefined) {
-      this.strict = options.strict;
+    if (options?.noStrict !== undefined) {
+      this.strict = !options.noStrict;
     }
   }
   is(key: string | string[]) {
