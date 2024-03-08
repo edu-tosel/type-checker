@@ -40,7 +40,7 @@ export class TypeChecker implements TypeChecker {
   ) {
     if (typeof obj !== "object")
       throw new TypeCheckerError("You must pass an object");
-    this.obj = obj;
+    this.obj = JSON.parse(JSON.stringify(obj));
     if (options?.noStrict !== undefined) {
       this.strict = !options.noStrict;
     }
