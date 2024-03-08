@@ -77,9 +77,12 @@ export class TypeChecker implements TypeChecker {
       }
     }
     this.valid = valid && this.valid;
+    this.isChecking = false;
     return this;
   }
   end() {
+    if (this.isChecking)
+      throw new TypeCheckerError("You must call as() after is()");
     if (!this.valid) {
       this.message.forEach((a) => console.log(a));
     }
