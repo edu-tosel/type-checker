@@ -9,7 +9,7 @@
  *   age: 20,
  *   isMale: true,
  * }
- * const checker = new TypeChecker(obj)
+ * const checker = new TypeChecker(obj, { strict: true });
  * const result = checker
  *   .is("name")
  *   .as("string")
@@ -33,10 +33,17 @@ export class TypeChecker implements TypeChecker {
   message: string[] = [];
   key: string | string[] = "";
   isChecking: boolean = false;
-  constructor(obj: Record<string, any | undefined>) {
+  strict: boolean = false;
+  constructor(
+    obj: Record<string, any | undefined>,
+    options?: { strict?: boolean }
+  ) {
     if (typeof obj !== "object")
       throw new TypeCheckerError("You must pass an object");
     this.obj = obj;
+    if (options?.strict !== undefined) {
+      this.strict = options.strict;
+    }
   }
   is(key: string | string[]) {
     this.key = key;
@@ -83,8 +90,19 @@ export class TypeChecker implements TypeChecker {
   end() {
     if (this.isChecking)
       throw new TypeCheckerError("You must call as() after is()");
-    if (!this.valid) {
+    else if (!this.valid) {
       this.message.forEach((a) => console.log(a));
+    } else if (this.strict) {
+      const keys = Object.keys(this.obj);
+      if (keys.length !== 0) {
+        const keyString = keys.join(", ");
+        const valueString = Object.values(this.obj).join(", ");
+        console.error("The object has more keys than expected");
+        console.error(
+          `The object has the following keys (${keyString}) and values (${valueString})`
+        );
+        this.valid = false;
+      }
     }
     return this.valid;
   }
@@ -100,19 +118,23 @@ export class TypeChecker implements TypeChecker {
    */
   private checkType(key: string, type: TypeOf) {
     const keyType = typeof this.obj[key] as TypeOf;
-    if (type === "undefined") {
-      return keyType === "undefined";
-    } else if (type === "array") {
-      return Array.isArray(this.obj[key]);
-    } else if (type === "object") {
-      return keyType === "object";
-    } else if (type === "null") {
-      return this.obj[key] === null;
+    try {
+      if (type === "undefined") {
+        return keyType === "undefined";
+      } else if (type === "array") {
+        return Array.isArray(this.obj[key]);
+      } else if (type === "object") {
+        return keyType === "object";
+      } else if (type === "null") {
+        return this.obj[key] === null;
+      }
+      if (typeof this.obj[key] !== type) {
+        return keyType === type;
+      }
+      return true;
+    } finally {
+      delete this.obj[key];
     }
-    if (typeof this.obj[key] !== type) {
-      return keyType === type;
-    }
-    return true;
   }
   private failedAll(key: string, types: TypeOf, expected: TypeOf[]) {
     this.message.push(
