@@ -96,7 +96,9 @@ export class TypeChecker implements TypeChecker {
       const keys = Object.keys(this.obj);
       if (keys.length !== 0) {
         const keyString = keys.join(", ");
-        const valueString = Object.values(this.obj).join(", ");
+        const valueString = Object.values(this.obj)
+          .map((val) => (typeof val === "object" ? JSON.stringify(val) : val))
+          .join(", ");
         console.error("The object has more keys than expected");
         console.error(
           `The object has the following keys (${keyString}) and values (${valueString})`
