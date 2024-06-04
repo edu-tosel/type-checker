@@ -131,3 +131,5 @@ dist
 
 # VS code
 .vscode
+# Test code
+**/test.ts
