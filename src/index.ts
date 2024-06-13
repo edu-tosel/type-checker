@@ -24,7 +24,7 @@
 export interface TypeChecker {
   is(key: string | string[]): TypeChecker;
   as(type: TypeOf | TypeOf[]): TypeChecker;
-  end(): boolean;
+  end<T>(object?: unknown): object is T;
 }
 
 export class TypeChecker implements TypeChecker {
@@ -87,7 +87,12 @@ export class TypeChecker implements TypeChecker {
     this.isChecking = false;
     return this;
   }
-  end() {
+  /**
+   *
+   * @param object The object to check
+   * @returns Returns true if the object is valid
+   */
+  end<T>(object?: unknown): object is T {
     if (this.isChecking)
       throw new TypeCheckerError("You must call as() after is()");
     else if (!this.valid) {
