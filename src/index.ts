@@ -109,7 +109,8 @@ export class TypeChecker implements TypeChecker {
     return this.valid;
   }
   private checkTypes(key: string, types: TypeOf[]) {
-    const result = types.some((type) => this.checkType(key, type));
+    const result = types.some((type) => this.checkType(key, type, false));
+    if (result) delete this.obj[key];
     return result;
   }
   /**
@@ -118,7 +119,7 @@ export class TypeChecker implements TypeChecker {
    * @param type The type to check
    * @returns Returns true if the type is correct
    */
-  private checkType(key: string, type: TypeOf) {
+  private checkType(key: string, type: TypeOf, deleteKey: boolean = true) {
     const keyType = typeof this.obj[key] as TypeOf;
     try {
       if (type === "undefined") {
@@ -135,7 +136,7 @@ export class TypeChecker implements TypeChecker {
       }
       return true;
     } finally {
-      delete this.obj[key];
+      if (deleteKey) delete this.obj[key];
     }
   }
   private failedAll(key: string, types: TypeOf, expected: TypeOf[]) {
