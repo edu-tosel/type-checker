@@ -1,25 +1,9 @@
+import { TypeChecker2 } from "./ver2";
 /**
  * @name TypeChecker
  * @author Minseong Kim <minseong@tosel.co.kr>
  * @description A simple type checker for typescript
- * @example
- * ```ts
- * const obj = {
- *   name: "John",
- *   age: 20,
- *   isMale: true,
- * }
- * const checker = new TypeChecker(obj, { strict: true });
- * const result = checker
- *   .is("name")
- *   .as("string")
- *   .is("age")
- *   .as("number")
- *   .is("isMale")
- *   .as(["boolean", "undefined"])
- *   .end();
- * console.log(result) // true
- * ```
+ * @deprecated Use TypeChecker2 instead
  */
 export interface TypeChecker {
   is(key: string | string[]): TypeChecker;
@@ -155,7 +139,7 @@ export class TypeChecker implements TypeChecker {
     this.valid = false;
   }
 }
-type TypeOf =
+export type TypeOf =
   | "array"
   | "bigint"
   | "boolean"
@@ -172,3 +156,5 @@ export class TypeCheckerError extends Error {
     this.name = "TypeCheckerError";
   }
 }
+
+export { TypeChecker2 };
