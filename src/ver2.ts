@@ -1,6 +1,6 @@
 import { TypeCheckerError, TypeOf } from "./index";
 
-export type TypeGuard = <T>(obj: unknown) => obj is T;
+export type TypeGuard = (obj: unknown) => boolean;
 export interface TypeChecker2 {
   isString: (key: string | string[]) => this;
   isOptionalString: (key: string | string[]) => this;
@@ -23,7 +23,7 @@ export interface TypeChecker2 {
   check: <T>(obj: unknown) => obj is T;
 }
 /**
- * @name TypeChecker
+ * @name TypeChecker2
  * @author Minseong Kim <minseong@tosel.co.kr>
  * @description A simple type checker for typescript
  * @default
