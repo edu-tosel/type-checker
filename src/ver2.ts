@@ -20,7 +20,7 @@ export interface TypeChecker2 {
   isNullArray: (key: string | string[]) => this;
   isSatisfy: (key: string | string[], typeGuard: TypeGuard) => this;
   is: (keys: string | string[], type: TypeOf | TypeOf[]) => this;
-  check: <T extends unknown>(obj: T) => obj is T;
+  check: <T>(obj: unknown) => obj is T;
 }
 /**
  * @name TypeChecker
@@ -176,7 +176,7 @@ export class TypeChecker2 {
     this.isType(keys, Array.isArray(type) ? type : [type]);
     return this;
   };
-  check = <T extends unknown>(obj: T): obj is T => {
+  check = <T>(obj: unknown): obj is T => {
     if (!(obj instanceof Object)) return this.error("Input is not an object");
     const o = JSON.parse(JSON.stringify(obj)) as Record<string, unknown>;
     const validKeys = [...this.checkers.entries()].map(
