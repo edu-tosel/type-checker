@@ -184,7 +184,8 @@ export class TypeChecker2 {
         if (!(key in o)) return [key, this.error(`Key \`${key}\` not found`)];
         const value = o[key];
         const isValid = types.some((type) => {
-          if (type === "undefined") return value === undefined;
+          if (type === "undefined") return typeof value === "undefined";
+          if (type === "null") return value === null;
           if (type === "array") return Array.isArray(value);
           if (type instanceof Function) return type(value);
           return typeof value === type;
