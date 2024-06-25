@@ -181,7 +181,10 @@ export class TypeChecker2 {
     const o = JSON.parse(JSON.stringify(obj)) as Record<string, unknown>;
     const validKeys = [...this.checkers.entries()].map(
       ([key, types]): [string, boolean] => {
-        if (!(key in o)) return [key, this.error(`Key \`${key}\` not found`)];
+        if (!(key in o)) {
+          if (types.some((type) => type === "undefined")) return [key, true];
+          return [key, this.error(`Key \`${key}\` not found`)];
+        }
         const value = o[key];
         const isValid = types.some((type) => {
           if (type === "undefined") return typeof value === "undefined";
