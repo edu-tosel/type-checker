@@ -1,4 +1,5 @@
 import { TypeChecker2 } from "./ver2";
+import baseTypeChecker from "./baseTypes";
 /**
  * @name TypeChecker
  * @author Minseong Kim <minseong@tosel.co.kr>
@@ -157,4 +158,4 @@ export class TypeCheckerError extends Error {
   }
 }
 
-export { TypeChecker2 };
+export { TypeChecker2, baseTypeChecker };
