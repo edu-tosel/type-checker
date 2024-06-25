@@ -1,6 +1,6 @@
 {
   "name": "@edu-tosel/type-checker",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Simple typechecker for custom type guards",
   "main": "index.js",
   "scripts": {
