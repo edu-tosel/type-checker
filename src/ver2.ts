@@ -183,7 +183,11 @@ export class TypeChecker2 {
       ([key, types]): [string, boolean] => {
         if (!(key in o)) {
           if (types.some((type) => type === "undefined")) return [key, true];
-          return [key, this.error(`Key \`${key}\` not found`)];
+          else if (
+            types.some((type) => type instanceof Function && type(undefined))
+          )
+            return [key, true];
+          else return [key, this.error(`Key \`${key}\` not found`)];
         }
         const value = o[key];
         const isValid = types.some((type) => {
