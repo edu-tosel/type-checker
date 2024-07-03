@@ -96,6 +96,14 @@ export class TypeChecker2 {
     this.isType(key, ["string", "null"]);
     return this;
   };
+  isStringArray = (key: string | string[]) => {
+    key = Array.isArray(key) ? key : [key];
+    this.isType(key, [
+      (value) =>
+        value instanceof Array && value.every((v) => typeof v === "string"),
+    ]);
+    return this;
+  };
   isNumber = (key: string | string[]): this => {
     key = Array.isArray(key) ? key : [key];
     this.isType(key, ["number"]);
@@ -111,6 +119,14 @@ export class TypeChecker2 {
     this.isType(key, ["number", "null"]);
     return this;
   };
+  isNumberArray = (key: string | string[]): this => {
+    key = Array.isArray(key) ? key : [key];
+    this.isType(key, [
+      (value) =>
+        value instanceof Array && value.every((v) => typeof v === "number"),
+    ]);
+    return this;
+  };
   isBoolean = (key: string | string[]): this => {
     key = Array.isArray(key) ? key : [key];
     this.isType(key, ["boolean"]);
@@ -124,6 +140,14 @@ export class TypeChecker2 {
   isNullBoolean = (key: string | string[]): this => {
     key = Array.isArray(key) ? key : [key];
     this.isType(key, ["boolean", "null"]);
+    return this;
+  };
+  isBooleanArray = (key: string | string[]): this => {
+    key = Array.isArray(key) ? key : [key];
+    this.isType(key, [
+      (value) =>
+        value instanceof Array && value.every((v) => typeof v === "boolean"),
+    ]);
     return this;
   };
   isObject = (key: string | string[]): this => {
@@ -146,7 +170,9 @@ export class TypeChecker2 {
     this.isType(key, ["null", "undefined"]);
     return this;
   };
-  isArray = (key: string | string[]): this => {
+  /** @deprecated use isAnyArray */
+  isArray = (key: string | string[]): this => this.isAnyArray(key);
+  isAnyArray = (key: string | string[]): this => {
     key = Array.isArray(key) ? key : [key];
     this.isType(key, ["array"]);
     return this;
@@ -169,6 +195,13 @@ export class TypeChecker2 {
   isSatisfy = (key: string | string[], typeGuard: TypeGuard) => {
     key = Array.isArray(key) ? key : [key];
     this.isType(key, [typeGuard]);
+    return this;
+  };
+  isSatisfyArray = (key: string | string[], typeGuard: TypeGuard) => {
+    key = Array.isArray(key) ? key : [key];
+    this.isType(key, [
+      (value) => value instanceof Array && value.every(typeGuard),
+    ]);
     return this;
   };
   is = (keys: string | string[], type: TypeOf | TypeOf[]) => {
