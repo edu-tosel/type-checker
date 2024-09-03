@@ -56,19 +56,18 @@ export interface TypeChecker2 {
  * ```
  */
 export class TypeChecker2 {
-  private message: string[] = [];
   private checkers: Map<string, (TypeOf | TypeGuard)[]> = new Map();
+  private messageOut: (message: string) => void = () => {};
   private strict: boolean = true;
   private silent: boolean = false;
   constructor(options?: {
     strict?: boolean;
     silent?: boolean;
-    messageOut?: string[];
+    messageOut?: (message: string) => void;
   }) {
     if (options?.strict !== undefined) this.strict = options.strict;
     if (options?.silent !== undefined) this.silent = options.silent;
-    if (options?.messageOut !== undefined) this.message = options.messageOut;
-    this.message = [];
+    if (options?.messageOut !== undefined) this.messageOut = options.messageOut;
     this.checkers = new Map();
   }
   private isType = (key: string[], type: (TypeOf | TypeGuard)[]) => {
@@ -76,11 +75,12 @@ export class TypeChecker2 {
     if (isDuplicate) throw new TypeCheckerError("Duplicate key");
     for (const k of key) this.checkers.set(k, type);
   };
-  private error = (message: string) => {
-    if (!this.silent) console.error(message);
-    this.message.push(message);
+  private error(this: this, message: string) {
+    if (!this.silent)
+      console.error(`[TypeChecker] TypeChecker failed: ${message}`);
+    this.messageOut(message);
     return false as false;
-  };
+  }
   isString = (key: string | string[]) => {
     key = Array.isArray(key) ? key : [key];
     this.isType(key, ["string"]);
@@ -197,9 +197,35 @@ export class TypeChecker2 {
     this.isType(key, [typeGuard]);
     return this;
   };
+  isOptionalSatisfy = (key: string | string[], typeGuard: TypeGuard) => {
+    key = Array.isArray(key) ? key : [key];
+    this.isType(key, ["undefined", typeGuard]);
+    return this;
+  };
+  isNullSatisfy = (key: string | string[], typeGuard: TypeGuard) => {
+    key = Array.isArray(key) ? key : [key];
+    this.isType(key, ["null", typeGuard]);
+    return this;
+  };
   isSatisfyArray = (key: string | string[], typeGuard: TypeGuard) => {
     key = Array.isArray(key) ? key : [key];
     this.isType(key, [
+      (value) => value instanceof Array && value.every(typeGuard),
+    ]);
+    return this;
+  };
+  isSatisfyOptionalArray = (key: string | string[], typeGuard: TypeGuard) => {
+    key = Array.isArray(key) ? key : [key];
+    this.isType(key, [
+      "undefined",
+      (value) => value instanceof Array && value.every(typeGuard),
+    ]);
+    return this;
+  };
+  isSatisfyNullArray = (key: string | string[], typeGuard: TypeGuard) => {
+    key = Array.isArray(key) ? key : [key];
+    this.isType(key, [
+      "null",
       (value) => value instanceof Array && value.every(typeGuard),
     ]);
     return this;
@@ -211,30 +237,22 @@ export class TypeChecker2 {
   };
   check = <T>(obj: unknown): obj is T => {
     if (!(obj instanceof Object)) return this.error("Input is not an object");
-    const o = JSON.parse(JSON.stringify(obj)) as Record<string, unknown>;
-    const validKeys = [...this.checkers.entries()].map(
-      ([key, types]): [string, boolean] => {
-        if (!(key in o)) {
-          if (types.some((type) => type === "undefined")) return [key, true];
-          else if (
-            types.some((type) => type instanceof Function && type(undefined))
-          )
-            return [key, true];
-          else return [key, this.error(`Key \`${key}\` not found`)];
-        }
-        const value = o[key];
-        const isValid = types.some((type) => {
-          if (type === "undefined") return typeof value === "undefined";
-          if (type === "null") return value === null;
-          if (type === "array") return Array.isArray(value);
-          if (type instanceof Function) return type(value);
-          return typeof value === type;
-        });
-        o[key] = undefined;
-        if (!isValid) return [key, this.error(`Key \`${key}\` is invalid`)];
-        else return [key, isValid];
-      }
-    );
+    const o = deepCopy(obj) as Record<string, unknown>;
+    const keyAndTypes = [...this.checkers.entries()];
+    const validKeys = keyAndTypes.map<[string, boolean]>(([key, types]) => {
+      const value = key in o ? o[key] : undefined;
+      const valueType = typeof value;
+      const isValid = types.some((type) => {
+        if (type === "undefined") return valueType === "undefined";
+        if (type === "null") return value === null;
+        if (type === "array") return Array.isArray(value);
+        if (type instanceof Function) return type(value);
+        return valueType === type;
+      });
+      o[key] = undefined;
+      if (!isValid) return [key, this.error(`Key \`${key}\` is invalid`)];
+      else return [key, isValid];
+    });
     const keys = Object.keys(o);
     const isRemain = keys.filter((key) => typeof o[key] !== "undefined");
     const isValid = validKeys.every(([, valid]) => valid);
@@ -246,4 +264,25 @@ export class TypeChecker2 {
     }
     return isValid;
   };
+}
+function deepCopy<T>(obj: T): T {
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+
+  if (obj instanceof Array) {
+    return obj.map((item) => deepCopy(item)) as any;
+  }
+
+  if (obj instanceof Object) {
+    const copiedObj: any = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        copiedObj[key] = deepCopy((obj as any)[key]);
+      }
+    }
+    return copiedObj;
+  }
+
+  throw new Error("Unable to copy object! Its type isn't supported.");
 }
