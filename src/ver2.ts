@@ -250,7 +250,7 @@ export class TypeChecker2 {
         return valueType === type;
       });
       o[key] = undefined;
-      if (!isValid) return [key, this.error(`Key \`${key}\` is invalid`)];
+      if (!isValid) return [key, this.error(`Key \`${key}\` is invalid, { ${key}: ${value} }`)];
       else return [key, isValid];
     });
     const keys = Object.keys(o);
